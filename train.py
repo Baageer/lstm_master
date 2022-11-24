@@ -11,7 +11,7 @@ from LSTM_net import LSTMRNN
 
 BATCH_START = 0     # 建立 batch data 时候的 index
 TIME_STEPS = 10     # backpropagation through time 的 time_steps
-BATCH_SIZE = 200
+BATCH_SIZE = 100
 INPUT_SIZE = 13     # sin 数据输入 size
 OUTPUT_SIZE = 1     # cos 数据输出 size
 CELL_SIZE = 10      # RNN 的 hidden unit size
@@ -35,7 +35,8 @@ def get_data_batch(batch_start, batch_size, datax, datay):
     if batch_start+batch_size<len(trainx):
         batchx = trainx[batch_start: batch_start+batch_size]
         batchy = trainy[batch_start: batch_start+batch_size]
-        # print(batchy)
+        print(batchy)
+        tt = input()
 
     else :
         batchx = trainx[-batch_size:]
@@ -51,38 +52,26 @@ def train_lstm(time_steps, input_size, output_size, cell_size, batch_start, batc
     steps = 0
     firstflag = 0
     with tf.Session() as sess:
-        merged = tf.summary.merge_all()
+        # merged = tf.summary.merge_all()
         writer = tf.summary.FileWriter("logs", sess.graph)
 
         sess.run(tf.global_variables_initializer())
 
-        while epoch < 100000:
-            seq, res = get_data_batch(batch_start, batch_size, trainx, trainy)
+            
             # print(np.array(seq).shape)
-            if firstflag == 0:
-                print("first flag...")
-                feed_dict = {
+        step = 0
+        while epoch < 20:
+            seq, res = get_data_batch(batch_start, batch_size, trainx, trainy)
+            sess.run([model.train_op], feed_dict={
+                model.xs: seq,
+                model.ys: res,
+            })
+            if step % 20 == 0:
+                print(sess.run(model.accuracy, feed_dict={
                     model.xs: seq,
                     model.ys: res,
-                }
-                firstflag = 1
-            elif firstflag == 1:
-                feed_dict = {
-                    model.xs: seq,
-                    model.ys: res,
-                    model.cell_init_state: state
-                }
+                }))
 
-            _, cost, state, pred = sess.run(
-                [model.train_op, model.cost, model.cell_final_state, model.pred],
-                feed_dict = feed_dict
-            )
-
-            pred_res = pred
-            global G_STATE
-            G_STATE = state
-            result = sess.run(merged, feed_dict)
-            writer.add_summary(result, steps)
 
             batch_start += batch_size
             steps += 1
@@ -91,10 +80,10 @@ def train_lstm(time_steps, input_size, output_size, cell_size, batch_start, batc
                 steps = 0
                 epoch += 1
 
-            if epoch % 100 == 0 and batch_start == 2*batch_size:
-                print( '{0} cost: '.format(epoch), round(cost, 8))     
-                print("保存模型： ", saver.save(sess, "model/lstm_rnn.model", global_step=epoch))
-                np.save("state.npy", G_STATE)       
+        if epoch % 100 == 0 and batch_start == 2*batch_size:
+            print( '{0} cost: '.format(epoch), round(cost, 8))     
+            print("保存模型： ", saver.save(sess, "model/lstm_rnn.model", global_step=epoch))
+
 
 
 if __name__ == "__main__":

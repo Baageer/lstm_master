@@ -4,6 +4,7 @@ import pickle
 from sklearn import preprocessing
 import os
 import pandas as pd
+from keras.utils import np_utils
 
 f = open('tstoken.txt')
 tstoken = f.readline()
@@ -53,8 +54,11 @@ class data_processing:
             data = data.dropna(axis = 0, subset = ['ma20'])
 
             datax = data.values.tolist()
-            datay = data['close'].values.tolist()
-            datay = [ [i] for i in datay]
+            datay = data['pct_chg'].values.tolist()
+
+            datay = [ int((i+10)/2) for i in datay]
+
+            datay = np_utils.to_categorical(datay,num_classes=10)
             datalength = len(datax)
 
             idx_start = 0
@@ -89,6 +93,6 @@ if __name__ == "__main__":
                          "2019-01-01", 
                          "2019-12-31")
 
-    datax,datay = dp.data_prepare(10, 2, clean_tmp=False)
-    
-    print(datax[0][0])
+    datax, datay = dp.data_prepare(10, 2, clean_tmp=False)
+
+    print(datax[0][0], datay[0])
