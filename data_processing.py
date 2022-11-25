@@ -23,6 +23,8 @@ class data_processing:
         self.dataX = []
         self.dataY = []
 
+        self.datalist = []
+
 
     def codelist_from_txtfile(self, txtfile):
         codelist = []
@@ -73,12 +75,13 @@ class data_processing:
 
         return dataset_x
 
-    def split_dataclass(self, dataset):
+    def split_dataclass(self):
+
         dataset0 = []
         dataset1 = []
         dataset2 = []
         dataset3 = []
-        for data in dataset:
+        for data in self.datalist:
             classlabel = np.argmax(data[1])
             if classlabel == 0:
                 dataset0.append(data)
@@ -110,7 +113,7 @@ class data_processing:
 
 
 
-    def data_prepare(self, time_step, time_step_add, clean_tmp=False, trainFlag=True):
+    def data_prepare(self, time_step, time_step_add, clean_tmp=False):
         dataset_x = []
         dataset_y = []
 
@@ -165,12 +168,10 @@ class data_processing:
         # ss_y = preprocessing.StandardScaler()
         # data_fit_y = ss_y.fit_transform(np.array(dataset_y).reshape(-1, 1))
 
-        dataset_list = list(zip(dataset_x,dataset_y))
-        if trainFlag is True:
+        self.datalist = list(zip(dataset_x,dataset_y))
 
-            dataset_list = self.split_dataclass(dataset_list)
 
-        return dataset_list
+        return self.datalist
 
 
     def data_load(self, ):

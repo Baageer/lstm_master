@@ -48,7 +48,8 @@ def get_data_batch(batch_start, batch_size, datax, datay):
 def train_lstm(time_steps, input_size, output_size, cell_size, batch_start, batch_size, lr):
 
     train_data = dp_train.data_prepare(TIME_STEPS, 1, clean_tmp=False)
-    test_data = dp_test.data_prepare(TIME_STEPS, 1, clean_tmp=False,)
+    train_data = dp_train.split_dataclass()
+    test_data = dp_test.data_prepare(TIME_STEPS, 1, clean_tmp=False)
 
     model = LSTMRNN(time_steps, input_size, output_size, cell_size, batch_size, lr, "train_")
     saver = tf.train.Saver(tf.global_variables(), max_to_keep=15)
@@ -107,8 +108,9 @@ def train_lstm(time_steps, input_size, output_size, cell_size, batch_start, batc
                 batch_start = 0
                 steps = 0
                 epoch += 1
-                train_data = dp_train.data_prepare(TIME_STEPS, 1, clean_tmp=False)
-                test_data = dp_test.data_prepare(TIME_STEPS, 1, clean_tmp=False,)
+                train_data = dp_train.split_dataclass()
+                # test_data = dp_test.split_dataclass()
+                
                 # random.shuffle(train_data)
 
         # if epoch % 100 == 0 and batch_start == 2*batch_size:
