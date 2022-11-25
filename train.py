@@ -11,41 +11,45 @@ from LSTM_net import LSTMRNN
 
 BATCH_START = 0     # 建立 batch data 时候的 index
 TIME_STEPS = 10     # backpropagation through time 的 time_steps
-BATCH_SIZE = 100
-INPUT_SIZE = 13     # sin 数据输入 size
-OUTPUT_SIZE = 1     # cos 数据输出 size
-CELL_SIZE = 10      # RNN 的 hidden unit size
-LR = 0.006          # learning rate
+BATCH_SIZE = 64
+INPUT_SIZE = 13     # 数据输入 size
+OUTPUT_SIZE = 4     # 数据输出 size
+CELL_SIZE = 64      # RNN 的 hidden unit size
+LR = 0.01          # learning rate
 
-dp_train = dp.data_processing(['600219.SH','600170.SH','600219.SH', '600369.SH', '600372.SH',],
-                         "2019-01-01", 
-                         "2019-12-31")
+dp_train = dp.data_processing(['600219.SH','600170.SH','603799.SH', '600369.SH', '600372.SH',
+                               '600893.SH','603288.SH','600570.SH', '601899.SH', '600837.SH',],
+                         "2016-01-01", 
+                         "2021-12-31", codefile="SZ50.txt")
 
-dp_test = dp.data_processing(['600219.SH','600170.SH','600219.SH', '600369.SH', '600372.SH',],
-                         "2020-01-01", 
-                         "2020-05-31")
+dp_test = dp.data_processing(['600219.SH','600170.SH','603799.SH', '600369.SH', '600372.SH',
+                              '600893.SH','603288.SH','600570.SH', '601899.SH', '600837.SH',],
+                         "2022-01-01", 
+                         "2022-05-31", codefile="SZ50.txt")
 
-trainx, trainy = dp_train.data_prepare(TIME_STEPS, 1, clean_tmp=False)
-testx, testy = dp_test.data_prepare(TIME_STEPS, 1, clean_tmp=False)
+
 
 
 def get_data_batch(batch_start, batch_size, datax, datay):
     batchx = []
     batchy = []
-    if batch_start+batch_size<len(trainx):
-        batchx = trainx[batch_start: batch_start+batch_size]
-        batchy = trainy[batch_start: batch_start+batch_size]
-        print(batchy)
-        tt = input()
+    if batch_start+batch_size<len(datax):
+        batchx = datax[batch_start: batch_start+batch_size]
+        batchy = datay[batch_start: batch_start+batch_size]
+
 
     else :
-        batchx = trainx[-batch_size:]
-        batchy = trainy[-batch_size:]
+        batchx = datax[-batch_size:]
+        batchy = datay[-batch_size:]
 
     return batchx,batchy
 
 
 def train_lstm(time_steps, input_size, output_size, cell_size, batch_start, batch_size, lr):
+
+    train_data = dp_train.data_prepare(TIME_STEPS, 1, clean_tmp=False)
+    test_data = dp_test.data_prepare(TIME_STEPS, 1, clean_tmp=False,)
+
     model = LSTMRNN(time_steps, input_size, output_size, cell_size, batch_size, lr, "train_")
     saver = tf.train.Saver(tf.global_variables(), max_to_keep=15)
     epoch = 0
@@ -60,17 +64,41 @@ def train_lstm(time_steps, input_size, output_size, cell_size, batch_start, batc
             
             # print(np.array(seq).shape)
         step = 0
-        while epoch < 20:
+        while epoch < 200:
+            trainx, trainy = list(zip(*train_data))
+
             seq, res = get_data_batch(batch_start, batch_size, trainx, trainy)
+            # for i in seq:
+            #     if(len(i)==1):
+            #         print("seq" , i)
+            #         t = input()
+            # for i in res:
+            #     if(len(i)==1):
+            #         print("res" , i)
+            #         t = input()
             sess.run([model.train_op], feed_dict={
                 model.xs: seq,
                 model.ys: res,
             })
-            if step % 20 == 0:
-                print(sess.run(model.accuracy, feed_dict={
-                    model.xs: seq,
-                    model.ys: res,
-                }))
+            if steps % 300 == 0:
+                testx, testy = list(zip(*test_data))
+                sum = 0
+                itr = int(len(testx)/batch_size-1)
+                for i in range(itr):
+                    seq_test, res_test = get_data_batch(i*batch_size, batch_size, testx, testy)
+                    acc = sess.run(model.accuracy, feed_dict={model.xs: seq_test,model.ys: res_test,})
+                    # print("test acc: ", acc)
+                    sum += acc
+                test_accurncy = sum/itr
+                print("epoch:", epoch, "\t|  steps:", steps,
+                      "\t|  train accuracy:", sess.run(model.accuracy, feed_dict={model.xs: seq,model.ys: res,}),
+                      "\t|  test  accuracy:", test_accurncy,
+                )
+
+            # if epoch == 5:
+            #     seq_test, res_test = get_data_batch(0, batch_size, testx, testy)
+            #     print("model prediction result:", sess.run(model.pred, feed_dict={model.xs: seq_test,model.ys: res_test,}))
+            #     t = input()
 
 
             batch_start += batch_size
@@ -79,10 +107,13 @@ def train_lstm(time_steps, input_size, output_size, cell_size, batch_start, batc
                 batch_start = 0
                 steps = 0
                 epoch += 1
+                train_data = dp_train.data_prepare(TIME_STEPS, 1, clean_tmp=False)
+                test_data = dp_test.data_prepare(TIME_STEPS, 1, clean_tmp=False,)
+                # random.shuffle(train_data)
 
-        if epoch % 100 == 0 and batch_start == 2*batch_size:
-            print( '{0} cost: '.format(epoch), round(cost, 8))     
-            print("保存模型： ", saver.save(sess, "model/lstm_rnn.model", global_step=epoch))
+        # if epoch % 100 == 0 and batch_start == 2*batch_size:
+        #     print( '{0} cost: '.format(epoch), round(cost, 8))     
+        #     print("保存模型： ", saver.save(sess, "model/lstm_rnn.model", global_step=epoch))
 
 
 
