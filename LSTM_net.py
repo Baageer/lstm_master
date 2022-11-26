@@ -68,7 +68,9 @@ class LSTMRNN(object):
         with tf.name_scope('Wx_plus_b'):
             self.pred = tf.matmul(l_out_x[-1], Ws_out) + bs_out #预测结果
 
-        self.correct_pred = tf.equal(tf.argmax(self.pred, 1), tf.argmax(self.ys, 1))
+        self.pred_softmax = tf.nn.softmax(self.pred)
+
+        self.correct_pred = tf.equal(tf.argmax(tf.nn.softmax(self.pred), 1), tf.argmax(self.ys, 1))
         self.accuracy = tf.reduce_mean(tf.cast(self.correct_pred, tf.float32))
  
     def compute_cost(self):

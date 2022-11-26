@@ -47,9 +47,11 @@ def get_data_batch(batch_start, batch_size, datax, datay):
 
 def train_lstm(time_steps, input_size, output_size, cell_size, batch_start, batch_size, lr):
 
-    train_data = dp_train.data_prepare(TIME_STEPS, 1, clean_tmp=False)
+    data_col = ['open','close','high','low','pct_chg','ma5','ma20',]
+    input_size = len(data_col)
+    train_data = dp_train.data_prepare(TIME_STEPS, 1, data_col=data_col, clean_tmp=False)
     train_data = dp_train.split_dataclass()
-    test_data = dp_test.data_prepare(TIME_STEPS, 1, clean_tmp=False)
+    test_data = dp_test.data_prepare(TIME_STEPS, 1, data_col=data_col, clean_tmp=False)
 
     model = LSTMRNN(time_steps, input_size, output_size, cell_size, batch_size, lr, "train_")
     saver = tf.train.Saver(tf.global_variables(), max_to_keep=15)
@@ -65,7 +67,7 @@ def train_lstm(time_steps, input_size, output_size, cell_size, batch_start, batc
             
             # print(np.array(seq).shape)
         step = 0
-        while epoch < 200:
+        while epoch < 101:
             trainx, trainy = list(zip(*train_data))
 
             seq, res = get_data_batch(batch_start, batch_size, trainx, trainy)
@@ -113,8 +115,7 @@ def train_lstm(time_steps, input_size, output_size, cell_size, batch_start, batc
                 
                 # random.shuffle(train_data)
 
-        # if epoch % 100 == 0 and batch_start == 2*batch_size:
-        #     print( '{0} cost: '.format(epoch), round(cost, 8))     
+        # if epoch % 100 == 0 and epoch > 0:   
         #     print("保存模型： ", saver.save(sess, "model/lstm_rnn.model", global_step=epoch))
 
 

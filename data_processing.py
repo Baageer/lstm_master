@@ -58,7 +58,20 @@ class data_processing:
             data.to_excel(savepath)
 
     def mean_norm(self, df_input):
-        return df_input.apply(lambda x: (x-x.mean())/ x.std(), axis=0)
+        df_input['open'] = (df_input['open']-df_input['open'].mean())/ df_input['open'].std()
+        df_input['high'] = (df_input['high']-df_input['high'].mean())/ df_input['high'].std()
+        df_input['low'] = (df_input['low']-df_input['low'].mean())/ df_input['low'].std()
+        df_input['close'] = (df_input['close']-df_input['close'].mean())/ df_input['close'].std()
+        df_input['pre_close'] = (df_input['pre_close']-df_input['pre_close'].mean())/ df_input['pre_close'].std()
+        df_input['ma5'] = (df_input['ma5']-df_input['ma5'].mean())/ df_input['ma5'].std()
+        df_input['ma20'] = (df_input['ma20']-df_input['ma20'].mean())/ df_input['ma20'].std()
+        df_input['ma_v_5'] = (df_input['ma_v_5']-df_input['ma_v_5'].mean())/ df_input['ma_v_5'].std()
+        df_input['ma_v_20'] = (df_input['ma_v_20']-df_input['ma_v_20'].mean())/ df_input['ma_v_20'].std()
+        df_input['vol'] = (df_input['vol']-df_input['vol'].mean())/ df_input['vol'].std()
+        df_input['amount'] = (df_input['amount']-df_input['amount'].mean())/ df_input['amount'].std()
+
+
+        return df_input
 
     def inputdata_clean(self, dataset_x):
         # print(dataset_x[['open', 'close' , 'high', 'low',  'pre_close', 'ma5', 'ma20']])
@@ -113,7 +126,7 @@ class data_processing:
 
 
 
-    def data_prepare(self, time_step, time_step_add, clean_tmp=False):
+    def data_prepare(self, time_step, time_step_add, data_col=None, clean_tmp=False):
         dataset_x = []
         dataset_y = []
 
@@ -122,7 +135,7 @@ class data_processing:
             if os.path.isfile(srcdata)==False or clean_tmp:
                 self.data_download(clean_tmp)
             
-            data = pd.read_excel(srcdata, usecols = [3,4,5,6,7,8,9,10,11,
+            data = pd.read_excel(srcdata, usecols = [1,2,3,4,5,6,7,8,9,10,11,
                                                      12,13,14,15])
             data = data.dropna(axis = 0, subset = ['ma20'])
 
@@ -143,6 +156,8 @@ class data_processing:
             
 
             data = self.inputdata_clean(data)
+            if data_col is not None:
+                data = data[data_col]
             datax = data.values.tolist()
             
 
@@ -153,11 +168,11 @@ class data_processing:
                 if idx_start+time_step >= datalength-1:
                     if datalength-time_step-1 < 0: break
                     dataset_x.append(datax[datalength-time_step-1:datalength-1])
-                    dataset_y.append(datay[datalength-1])
+                    dataset_y.append(datay[datalength-2])
                     break
                 
                 dataset_x.append(datax[idx_start:idx_start+time_step])
-                dataset_y.append(datay[idx_start+time_step])
+                dataset_y.append(datay[idx_start+time_step-1])
 
                 idx_start += time_step_add
 
@@ -229,8 +244,15 @@ if __name__ == "__main__":
                          "2019-01-01", 
                          "2021-12-31", codefile="SZ50.txt")
 
-    test_data = dp.data_prepare(30, 1, clean_tmp=False)
+    data_col = ['ts_code','trade_date','open','close','high','low','pct_chg','ma5','ma20',]
+    test_data = dp.data_prepare(30, 1, data_col=data_col, clean_tmp=False)
+    test_data = dp.split_dataclass()
     testx, testy = list(zip(*test_data))
+    for i,v in enumerate(testx):
+        for item in v:
+            print(item)
+        print(testy[i+1])
+        ttt = input()
     argmax_list = [0,0,0,0]
     for i in testy:
         temp = np.argmax(i)
