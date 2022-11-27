@@ -115,8 +115,8 @@ def train_lstm(time_steps, input_size, output_size, cell_size, batch_start, batc
                 
                 # random.shuffle(train_data)
 
-        # if epoch % 100 == 0 and epoch > 0:   
-        #     print("保存模型： ", saver.save(sess, "model/lstm_rnn.model", global_step=epoch))
+            if epoch % 100 == 0 and epoch > 0:   
+                print("保存模型： ", saver.save(sess, "model/lstm_rnn.model", global_step=epoch))
 
 
 

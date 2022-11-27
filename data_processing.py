@@ -4,7 +4,7 @@ import pickle
 from sklearn import preprocessing
 import os
 import pandas as pd
-from keras.utils import np_utils
+from tensorflow.python.keras.utils import np_utils
 import random
 
 f = open('tstoken.txt')
@@ -58,15 +58,15 @@ class data_processing:
             data.to_excel(savepath)
 
     def mean_norm(self, df_input):
-        df_input['open'] = (df_input['open']-df_input['open'].mean())/ df_input['open'].std()
-        df_input['high'] = (df_input['high']-df_input['high'].mean())/ df_input['high'].std()
-        df_input['low'] = (df_input['low']-df_input['low'].mean())/ df_input['low'].std()
-        df_input['close'] = (df_input['close']-df_input['close'].mean())/ df_input['close'].std()
-        df_input['pre_close'] = (df_input['pre_close']-df_input['pre_close'].mean())/ df_input['pre_close'].std()
-        df_input['ma5'] = (df_input['ma5']-df_input['ma5'].mean())/ df_input['ma5'].std()
-        df_input['ma20'] = (df_input['ma20']-df_input['ma20'].mean())/ df_input['ma20'].std()
-        df_input['ma_v_5'] = (df_input['ma_v_5']-df_input['ma_v_5'].mean())/ df_input['ma_v_5'].std()
-        df_input['ma_v_20'] = (df_input['ma_v_20']-df_input['ma_v_20'].mean())/ df_input['ma_v_20'].std()
+        # df_input['open'] = (df_input['open']-df_input['open'].mean())/ df_input['open'].std()
+        # df_input['high'] = (df_input['high']-df_input['high'].mean())/ df_input['high'].std()
+        # df_input['low'] = (df_input['low']-df_input['low'].mean())/ df_input['low'].std()
+        # df_input['close'] = (df_input['close']-df_input['close'].mean())/ df_input['close'].std()
+        # df_input['pre_close'] = (df_input['pre_close']-df_input['pre_close'].mean())/ df_input['pre_close'].std()
+        # df_input['ma5'] = (df_input['ma5']-df_input['ma5'].mean())/ df_input['ma5'].std()
+        # df_input['ma20'] = (df_input['ma20']-df_input['ma20'].mean())/ df_input['ma20'].std()
+        # df_input['ma_v_5'] = (df_input['ma_v_5']-df_input['ma_v_5'].mean())/ df_input['ma_v_5'].std()
+        # df_input['ma_v_20'] = (df_input['ma_v_20']-df_input['ma_v_20'].mean())/ df_input['ma_v_20'].std()
         df_input['vol'] = (df_input['vol']-df_input['vol'].mean())/ df_input['vol'].std()
         df_input['amount'] = (df_input['amount']-df_input['amount'].mean())/ df_input['amount'].std()
 
@@ -162,17 +162,16 @@ class data_processing:
             
 
             datalength = len(datax)
-
             idx_start = 0
             while(True):
                 if idx_start+time_step >= datalength-1:
                     if datalength-time_step-1 < 0: break
                     dataset_x.append(datax[datalength-time_step-1:datalength-1])
-                    dataset_y.append(datay[datalength-2])
+                    dataset_y.append(datay[datalength-1])
                     break
                 
                 dataset_x.append(datax[idx_start:idx_start+time_step])
-                dataset_y.append(datay[idx_start+time_step-1])
+                dataset_y.append(datay[idx_start+time_step])
 
                 idx_start += time_step_add
 
@@ -246,12 +245,12 @@ if __name__ == "__main__":
 
     data_col = ['ts_code','trade_date','open','close','high','low','pct_chg','ma5','ma20',]
     test_data = dp.data_prepare(30, 1, data_col=data_col, clean_tmp=False)
-    test_data = dp.split_dataclass()
+    # test_data = dp.split_dataclass()
     testx, testy = list(zip(*test_data))
     for i,v in enumerate(testx):
         for item in v:
             print(item)
-        print(testy[i+1])
+        print(testy[i])
         ttt = input()
     argmax_list = [0,0,0,0]
     for i in testy:

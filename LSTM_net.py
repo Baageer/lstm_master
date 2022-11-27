@@ -1,6 +1,6 @@
 import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
-from tensorflow_core import seq_loss
+# from tensorflow_core import seq_loss
 
 class LSTMRNN(object):
     def __init__(self, n_steps, input_size, output_size, cell_size, batch_size,lr, name_scope):

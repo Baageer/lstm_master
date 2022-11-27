@@ -40,12 +40,12 @@ with tf.Session() as sess:
         ix = [testx[itr]]
         iy = [testy[itr]]
         
-        if(iy[0][1] == 1):
+        if(iy[0][3] == 1):
             # print(iy)
             # print(sess.run(model.accuracy, feed_dict={model.xs: ix,model.ys: iy,}) )
-            acc, pred = sess.run([model.accuracy, model.pred], feed_dict={model.xs: ix,model.ys: iy,})
-            if acc == 0.0:
-                print(iy, pred)
+            acc, pred = sess.run([model.accuracy, model.pred_softmax], feed_dict={model.xs: ix,model.ys: iy,})
+            # if acc == 0.0:
+            #     print(iy, pred)
             suma += acc
             count += 1
             # ttt = input()
