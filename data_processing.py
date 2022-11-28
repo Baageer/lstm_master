@@ -31,10 +31,15 @@ class data_processing:
         f = open(txtfile)
         for line in f.readlines():
             line = line.strip()
-            code = line + ".SH"
+            if(line[0]=='6'):
+                code = line + ".SH"
+            else:
+                code = line + ".SZ"
+            
 
             codelist.append(code)
-        
+
+
         self.code_list = codelist
 
 
@@ -241,7 +246,7 @@ def kmean_analysis(test_data):
 if __name__ == "__main__":
     dp = data_processing(['600219.SH','600170.SH','600219.SH', '600369.SH', '600372.SH'],
                          "2019-01-01", 
-                         "2021-12-31", codefile="SZ50.txt")
+                         "2021-12-31", codefile="HS300.txt")
 
     data_col = ['ts_code','trade_date','open','close','high','low','pct_chg','ma5','ma20',]
     test_data = dp.data_prepare(30, 1, data_col=data_col, clean_tmp=False)

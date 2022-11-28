@@ -15,7 +15,7 @@ dp_test = dp.data_processing(['600219.SH','600170.SH','603799.SH', '600369.SH', 
                          "2022-11-25", codefile="SZ50.txt")
 
 BATCH_START = 0     # 建立 batch data 时候的 index
-TIME_STEPS = 10     # backpropagation through time 的 time_steps
+TIME_STEPS = 15     # backpropagation through time 的 time_steps
 BATCH_SIZE = 1
 INPUT_SIZE = 13     # 数据输入 size
 OUTPUT_SIZE = 4     # 数据输出 size
@@ -34,7 +34,7 @@ suma = 0
 count = 0
 with tf.Session() as sess:
     # 从磁盘上加载对象
-    saver.restore(sess, "model/lstm_rnn.model-100")
+    saver.restore(sess, "model/lstm_rnn.model-1001")
     print("Model restored.")
     while itr < len(testx):
         ix = [testx[itr]]
