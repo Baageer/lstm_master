@@ -88,6 +88,7 @@ class data_processing:
         dataset_x['low'] = (dataset_x['low']-dataset_x['pre_close'])/dataset_x['pre_close'] * 100
         dataset_x['ma5'] = (dataset_x['ma5']-dataset_x['pre_close'])/dataset_x['pre_close'] * 100
         dataset_x['ma20'] = (dataset_x['ma20']-dataset_x['pre_close'])/dataset_x['pre_close'] * 100
+        dataset_x['ma50'] = (dataset_x['ma50']-dataset_x['pre_close'])/dataset_x['pre_close'] * 100
         # print(dataset_x[['open', 'close' , 'high', 'low',  'pre_close', 'ma5', 'ma20']])
 
         dataset_x = self.mean_norm(dataset_x)
@@ -152,8 +153,8 @@ class data_processing:
                 self.data_download(clean_tmp)
             
             data = pd.read_excel(srcdata, usecols = [1,2,3,4,5,6,7,8,9,10,11,
-                                                     12,13,14,15])
-            data = data.dropna(axis = 0, subset = ['ma20'])
+                                                     12,13,14,15,16,17])
+            data = data.dropna(axis = 0, subset = ['ma50'])
 
             datay = data['pct_chg'].values.tolist()
             

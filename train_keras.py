@@ -27,7 +27,7 @@ dp_test = dp.data_processing(['600219.SH','600170.SH','603799.SH', '600369.SH', 
 #时间序列数量
 n_step = 15
 #每次输入的维度
-n_input = 9
+n_input = 10
 #分类类别数
 n_classes = 4
 
@@ -54,7 +54,7 @@ n_lstm_out = 128
 # y_train = keras.utils.to_categorical(y_train, n_classes)
 # y_test = keras.utils.to_categorical(y_test, n_classes)
 
-data_col = ['open','close','high','low','pct_chg','ma5','ma20', 'vol', 'amount']
+data_col = ['open','close','high','low','pct_chg','ma5','ma20', 'ma50', 'vol', 'amount']
 input_size = len(data_col)
 train_data = dp_train.data_prepare(n_step, 1, data_col=data_col, clean_tmp=False)
 # train_data = dp_train.split_dataclass()
@@ -75,7 +75,7 @@ model = Sequential()
 model.add(LSTM(
         units = n_lstm_out,
         input_shape = (n_step, n_input),
-        activation='sigmoind'))
+        activation='sigmoid'))
 
 model.add(Dropout(0.5))
 
