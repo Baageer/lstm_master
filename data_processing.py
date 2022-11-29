@@ -6,6 +6,8 @@ import os
 import pandas as pd
 from tensorflow.python.keras.utils import np_utils
 import random
+import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 f = open('tstoken.txt')
 tstoken = f.readline()
@@ -130,12 +132,21 @@ class data_processing:
         return data_extend
 
 
+    def show_data(self, data):
+        x = list(range(data.shape[0]))
+        y = data['close']
+        print(len(x), len(y))
+        plt.scatter(x, y, color='tab:red', s=10, label="Troughs")
+        plt.plot(x, y, color='tab:green')
+        plt.show()
+
+
 
     def data_prepare(self, time_step, time_step_add, data_col=None, clean_tmp=False):
         dataset_x = []
         dataset_y = []
 
-        for item in self.code_list:
+        for item in tqdm(self.code_list):
             srcdata = "tmp/" + item + "_" + self.date_start + "_" + self.date_end +".xls"
             if os.path.isfile(srcdata)==False or clean_tmp:
                 self.data_download(clean_tmp)
@@ -161,6 +172,7 @@ class data_processing:
             
 
             data = self.inputdata_clean(data)
+
             if data_col is not None:
                 data = data[data_col]
             datax = data.values.tolist()
@@ -216,7 +228,7 @@ def kmean_analysis(test_data):
 
     from sklearn.cluster import KMeans
     from sklearn.decomposition import PCA, FactorAnalysis
-    import matplotlib.pyplot as plt
+    
     x = np.array(testx)
     x = x.reshape(x.shape[0], -1)
     print(x.shape)
@@ -246,7 +258,7 @@ def kmean_analysis(test_data):
 if __name__ == "__main__":
     dp = data_processing(['600219.SH','600170.SH','600219.SH', '600369.SH', '600372.SH'],
                          "2019-01-01", 
-                         "2021-12-31", codefile="HS300.txt")
+                         "2021-12-31", codefile="SZ50.txt")
 
     data_col = ['ts_code','trade_date','open','close','high','low','pct_chg','ma5','ma20',]
     test_data = dp.data_prepare(30, 1, data_col=data_col, clean_tmp=False)
