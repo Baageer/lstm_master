@@ -1,6 +1,6 @@
 import keras
 from keras import Sequential
-from keras.layers import LSTM,Dense, Activation
+from keras.layers import LSTM,Dense, Activation, GRU
 from keras import optimizers
 from keras.datasets import mnist
 #加载数据

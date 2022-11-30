@@ -1,7 +1,8 @@
 import keras
 from keras import Sequential
-from keras.layers import LSTM, Dense, Activation, Dropout
+from keras.layers import LSTM, Dense, Activation, Dropout, GRU
 from keras import optimizers
+from sklearn.utils import class_weight
 import numpy as np
 
 import data_processing as dp
@@ -65,6 +66,7 @@ x_test, y_test = list(zip(*test_data))
 x_train, y_train = np.array(x_train), np.array(y_train)
 x_test, y_test = np.array(x_test), np.array(y_test)
 
+
 # print(x_train.shape, y_train.shape, x_test.shape, y_test.shape,)
 # ttt = input()
 
@@ -75,9 +77,9 @@ model = Sequential()
 model.add(LSTM(
         units = n_lstm_out,
         input_shape = (n_step, n_input),
-        activation='sigmoid'))
+        activation='relu'))
 
-model.add(Dropout(0.5))
+model.add(Dropout(0.25))
 
 #全连接层          
 model.add(Dense(units = n_classes))
@@ -98,7 +100,8 @@ model.fit(x_train, y_train,
           epochs = epochs, 
           batch_size= batch_size, 
           verbose = 1, 
-          validation_data = (x_test,y_test))
+          validation_data = (x_test,y_test),
+          class_weight = 'auto')
 #评估
 score = model.evaluate(x_test, y_test, 
                        batch_size = batch_size, 
