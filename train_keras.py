@@ -1,6 +1,6 @@
 import keras
 from keras import Sequential
-from keras.layers import LSTM, Dense, Activation, Dropout, GRU, Conv1D, ReLU, BatchNormalization
+from keras.layers import LSTM, Dense, Activation, Dropout, GRU, Conv1D, ReLU, BatchNormalization, Flatten
 from keras import optimizers
 from sklearn.utils import class_weight
 import numpy as np
@@ -26,18 +26,18 @@ dp_test = dp.data_processing(['600219.SH','600170.SH','603799.SH', '600369.SH', 
 # print('x_test.shape:',x_test.shape)
 
 #时间序列数量
-n_step = 20
+n_step = 30
 #每次输入的维度
 n_input = 10
 #分类类别数
 n_classes = 4
 
 #学习率
-learning_rate = 0.01
+learning_rate = 0.001
 #每次处理的数量
 batch_size = 128
 #循环次数
-epochs = 200
+epochs = 500
 #神经元的数量
 n_lstm_out = 128
 
@@ -78,18 +78,17 @@ x_test, y_test = np.array(x_test), np.array(y_test)
 
 model = Sequential()
 
-#LSTM层
-model.add(Conv1D(64, 3, strides=1,input_shape=(n_step, n_input), use_bias=False))
+model.add(Conv1D(32, 3, strides=1,input_shape=(n_step, n_input), use_bias=False))
 model.add(ReLU())
 
-model.add(Conv1D(64, 3, strides=1))  # [None, 54, 64]
+model.add(Conv1D(32, 3, strides=1))  # [None, 54, 64]
 model.add(BatchNormalization())
 
-model.add(LSTM(64, dropout=0.5, return_sequences=True))
-model.add(LSTM(64, dropout=0.5, return_sequences=True))
+model.add(LSTM(32, dropout=0.5, return_sequences=True))
+model.add(LSTM(32, dropout=0.5, return_sequences=True))
 model.add(LSTM(32))
-
 #全连接层          
+model.add(Dense(units = 128))
 model.add(Dense(units = n_classes))
 #激活层
 model.add(Activation('softmax'))
@@ -102,6 +101,9 @@ model.compile(
     optimizer = optimizers.Adam(lr = learning_rate),
     loss = 'categorical_crossentropy',
     metrics = ['accuracy'])
+
+# from keras.models import load_model
+# model = load_model('model-500.h5')
 
 #训练
 model.fit(x_train, y_train, 
@@ -116,3 +118,5 @@ score = model.evaluate(x_test, y_test,
                        verbose = 1)
 print('loss:',score[0])
 print('acc:',score[1])
+
+model.save("CNN_LSTM_model-500.h5")
