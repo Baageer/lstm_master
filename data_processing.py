@@ -124,9 +124,26 @@ class data_processing:
         len3 = len(dataset3)
         
 
-        len_min = min([len0, len1, len2, len3])
+        len_max = max([len0, len1, len2, len3])
+        l0 = int(len_max/len0 + 0.5)
+        l1 = int(len_max/len1 + 0.5)
+        l2 = int(len_max/len2 + 0.5)
+        l3 = int(len_max/len3 + 0.5)
+        d0,d1,d2,d3 = [],[],[],[]
+        for i in range(l0):
+            d0 += dataset0
+        for i in range(l1):
+            d1 += dataset1
+        for i in range(l2):
+            d2 += dataset2
+        for i in range(l3):
+            d3 += dataset3
 
-        data_extend = dataset0[0:len_min] + dataset1[0:len_min] + dataset2[0:len_min] + dataset3[0:len_min]
+        print(len0, len1, len2, len3)
+        print(l0, l1, l2, l3)
+        ttt = input()
+
+        data_extend = d0 + d1 + d2 + d3
         random.shuffle(data_extend)
         # print(len0 ,len1, len2, len3, len(data_extend))
 

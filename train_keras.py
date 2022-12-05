@@ -37,7 +37,7 @@ learning_rate = 0.001
 #每次处理的数量
 batch_size = 128
 #循环次数
-epochs = 500
+epochs = 300
 #神经元的数量
 n_lstm_out = 128
 
@@ -58,7 +58,7 @@ n_lstm_out = 128
 data_col = ['open','close','high','low','pct_chg','ma5','ma20', 'ma50', 'vol', 'amount']
 input_size = len(data_col)
 train_data = dp_train.data_prepare(n_step, 1, data_col=data_col, clean_tmp=False)
-# train_data = dp_train.split_dataclass()
+train_data = dp_train.split_dataclass()
 test_data = dp_test.data_prepare(n_step, 1, data_col=data_col, clean_tmp=False)
 
 # test_data3 = []
@@ -78,15 +78,15 @@ x_test, y_test = np.array(x_test), np.array(y_test)
 
 model = Sequential()
 
-model.add(Conv1D(32, 3, strides=1,input_shape=(n_step, n_input), use_bias=False))
+model.add(Conv1D(64, 3, strides=1,input_shape=(n_step, n_input), use_bias=False))
 model.add(ReLU())
 
-model.add(Conv1D(32, 3, strides=1))  # [None, 54, 64]
+model.add(Conv1D(64, 3, strides=1))  # [None, 54, 64]
 model.add(BatchNormalization())
 
-model.add(LSTM(32, dropout=0.5, return_sequences=True))
-model.add(LSTM(32, dropout=0.5, return_sequences=True))
-model.add(LSTM(32))
+model.add(LSTM(64, dropout=0.5, return_sequences=True))
+model.add(LSTM(64, dropout=0.5, return_sequences=True))
+model.add(LSTM(64))
 #全连接层          
 model.add(Dense(units = 128))
 model.add(Dense(units = n_classes))
