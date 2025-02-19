@@ -71,15 +71,16 @@ class data_process():
                                         12,13,14,15,16,17])
             # print(pd.to_datetime(data["trade_date"]))
             # data["trade_date"] = pd.to_datetime(data["trade_date"])
-            print("date", data.head(10))
+            # print("date", data.head(10))
             data['trade_date'] = data['trade_date'].apply(lambda x: str(x)[0:4]+'-'+str(x)[4:6]+'-'+str(x)[6:8])
+            data['trade_date'] = pd.to_datetime(data['trade_date'])
             #print(data.head(10))
 
             if restore=="pre":
-                data.sort_index(ascending=False, inplace=True)
+                data = data.sort_values(by='trade_date', ascending=False)
             elif restore=="nxt":
-                data.sort_index(ascending=True, inplace=True)
-            print("pre", data.head(10))
+                data = data.sort_values(by='trade_date', ascending=True)
+            # print("pre", data.head(10))
             close_data = data["close"]
             
             pct_chg_data = data["pct_chg"]
@@ -97,11 +98,10 @@ class data_process():
                 close_temp = close_restore_tmp
 
             if restore=="pre":
-                data.sort_index(ascending=True, inplace=True)
+                data = data.sort_values(by='trade_date', ascending=True)
             elif restore=="nxt":
-                data.sort_index(ascending=False, inplace=True)
+                data = data.sort_values(by='trade_date', ascending=False)
                 
-            print("return", data.head(10))
 
             data["ma5_restore"] = data["close_restore"].rolling(5).mean()
             data["ma10_restore"] = data["close_restore"].rolling(10).mean()
