@@ -37,7 +37,7 @@ learning_rate = 0.001
 #每次处理的数量
 batch_size = 128
 #循环次数
-epochs = 300
+epochs = 200
 #神经元的数量
 n_lstm_out = 128
 
@@ -119,4 +119,4 @@ score = model.evaluate(x_test, y_test,
 print('loss:',score[0])
 print('acc:',score[1])
 
-model.save("CNN_LSTM_model-500.h5")
+model.save("CNN_LSTM_model-200.h5")
