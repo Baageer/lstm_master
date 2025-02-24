@@ -43,6 +43,7 @@ class LSTMRNN(object):
             l_in_y = tf.matmul(l_in_x, Ws_in) + bs_in
         # reshape l_in_y ==> (batch, n_steps, cell_size)
         self.l_in_y = tf.reshape(l_in_y, [-1, self.n_steps, self.cell_size], name='2_3D')
+        print(self.l_in_y)
  
     #多时刻的状态叠加层
     def add_cell(self):
@@ -60,7 +61,9 @@ class LSTMRNN(object):
         # output_size = 10*self.n_steps
         #print(self.cell_outputs)
         # l_out_x = tf.reshape(self.cell_outputs, [-1, output_size], name='2_2D')
-        l_out_x = tf.unstack(tf.transpose(self.cell_outputs, [1, 0, 2]))
+        outputs = tf.transpose(self.cell_outputs, [1, 0, 2])
+        l_out_x = tf.unstack(outputs)
+        # print(l_out_x)
 
         Ws_out = self._weight_variable([self.cell_size, self.output_size])
         bs_out = self._bias_variable([self.output_size, ])
@@ -73,6 +76,26 @@ class LSTMRNN(object):
         self.correct_pred = tf.equal(tf.argmax(tf.nn.softmax(self.pred), 1), tf.argmax(self.ys, 1))
         self.accuracy = tf.reduce_mean(tf.cast(self.correct_pred, tf.float32))
  
+    def attention(self, inputs, attention_size, time_major=False):
+        if isinstance(inputs, tuple):
+            inputs = tf.concat(inputs, 2)
+        if time_major:  # (T,B,D) => (B,T,D)
+            inputs = tf.transpose(inputs, [1, 0, 2])
+        hidden_size = inputs.shape[2].value 
+        # Trainable parameters
+        w_omega = tf.Variable(tf.random_normal([hidden_size, attention_size], stddev=0.1))
+        b_omega = tf.Variable(tf.random_normal([attention_size], stddev=0.1))
+        u_omega = tf.Variable(tf.random_normal([attention_size], stddev=0.1))
+        v = tf.tanh(tf.tensordot(inputs, w_omega, axes=1) + b_omega)
+
+        vu = tf.tensordot(v, u_omega, axes=1, name='vu')  # (B,T) shape
+        alphas = tf.nn.softmax(vu, name='alphas')  # (B,T) shape
+        # the result has (B,D) shape
+        output = tf.reduce_sum(inputs * tf.expand_dims(alphas, -1), 1)
+        
+        return output, alphas
+
+
     def compute_cost(self):
         # losses = seq_loss.sequence_loss_by_example(
         #     [tf.reshape(self.pred, [-1], name='reshape_pred')],

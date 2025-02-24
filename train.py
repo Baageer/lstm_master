@@ -10,7 +10,7 @@ import data_processing as dp
 from LSTM_net import LSTMRNN
 
 BATCH_START = 0     # 建立 batch data 时候的 index
-TIME_STEPS = 10     # backpropagation through time 的 time_steps
+TIME_STEPS = 15     # backpropagation through time 的 time_steps
 BATCH_SIZE = 64
 INPUT_SIZE = 13     # 数据输入 size
 OUTPUT_SIZE = 4     # 数据输出 size
@@ -19,13 +19,18 @@ LR = 0.01          # learning rate
 
 dp_train = dp.data_processing(['600219.SH','600170.SH','603799.SH', '600369.SH', '600372.SH',
                                '600893.SH','603288.SH','600570.SH', '601899.SH', '600837.SH',],
+<<<<<<< HEAD
                          "2013-01-01", 
                          "2024-12-31", codefile="SZ50.txt")
+=======
+                         "2016-01-01", 
+                         "2021-12-31", codefile="HS300.txt")
+>>>>>>> 55d279db8ad092d847db449d9963d2010e8f1d6a
 
 dp_test = dp.data_processing(['600219.SH','600170.SH','603799.SH', '600369.SH', '600372.SH',
                               '600893.SH','603288.SH','600570.SH', '601899.SH', '600837.SH',],
                          "2022-01-01", 
-                         "2022-05-31", codefile="SZ50.txt")
+                         "2022-05-31", codefile="HS300.txt")
 
 
 
@@ -67,7 +72,7 @@ def train_lstm(time_steps, input_size, output_size, cell_size, batch_start, batc
             
             # print(np.array(seq).shape)
         step = 0
-        while epoch < 101:
+        while epoch < 1001:
             trainx, trainy = list(zip(*train_data))
 
             seq, res = get_data_batch(batch_start, batch_size, trainx, trainy)
@@ -83,30 +88,27 @@ def train_lstm(time_steps, input_size, output_size, cell_size, batch_start, batc
                 model.xs: seq,
                 model.ys: res,
             })
-            if steps % 300 == 0:
-                testx, testy = list(zip(*test_data))
-                sum = 0
-                itr = int(len(testx)/batch_size-1)
-                for i in range(itr):
-                    seq_test, res_test = get_data_batch(i*batch_size, batch_size, testx, testy)
-                    acc = sess.run(model.accuracy, feed_dict={model.xs: seq_test,model.ys: res_test,})
-                    # print("test acc: ", acc)
-                    sum += acc
-                test_accurncy = sum/itr
-                print("epoch:", epoch, "\t|  steps:", steps,
-                      "\t|  train accuracy:", sess.run(model.accuracy, feed_dict={model.xs: seq,model.ys: res,}),
-                      "\t|  test  accuracy:", test_accurncy,
-                )
-
-            # if epoch == 5:
-            #     seq_test, res_test = get_data_batch(0, batch_size, testx, testy)
-            #     print("model prediction result:", sess.run(model.pred, feed_dict={model.xs: seq_test,model.ys: res_test,}))
-            #     t = input()
 
 
             batch_start += batch_size
             steps += 1
             if batch_start >= len(trainx):
+                
+                if epoch%5==0:
+                    testx, testy = list(zip(*test_data))
+                    sum = 0
+                    itr = int(len(testx)/batch_size-1)
+                    for i in range(itr):
+                        seq_test, res_test = get_data_batch(i*batch_size, batch_size, testx, testy)
+                        acc = sess.run(model.accuracy, feed_dict={model.xs: seq_test,model.ys: res_test,})
+                        # print("test acc: ", acc)
+                        sum += acc
+                    test_accurncy = sum/itr
+                    print("epoch:", epoch, "\t|  steps:", steps,
+                        "\t|  train accuracy:", sess.run(model.accuracy, feed_dict={model.xs: seq,model.ys: res,}),
+                        "\t|  test  accuracy:", test_accurncy,
+                    )
+
                 batch_start = 0
                 steps = 0
                 epoch += 1
@@ -115,8 +117,8 @@ def train_lstm(time_steps, input_size, output_size, cell_size, batch_start, batc
                 
                 # random.shuffle(train_data)
 
-            if epoch % 100 == 0 and epoch > 0:   
-                print("保存模型： ", saver.save(sess, "model/lstm_rnn.model", global_step=epoch))
+
+        print("保存模型： ", saver.save(sess, "model/lstm_rnn.model", global_step=epoch))
 
 
 

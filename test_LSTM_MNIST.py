@@ -31,7 +31,7 @@ y_test = np_utils.to_categorical(y_test,num_classes=10)
 mnist_train = tf.data.Dataset.from_tensor_slices((x_train, y_train))
 mnist_test = tf.data.Dataset.from_tensor_slices((x_test,y_test))
 
-mnist_train_batch = mnist_train.batch(batch_size=batch_size)
+mnist_train_batch = mnist_train.repeat(int(training_iters/batch_size)).batch(batch_size=batch_size)
 
 next_op = mnist_train_batch.make_one_shot_iterator().get_next()
 
@@ -48,7 +48,12 @@ if __name__ == "__main__":
         step = 0
         while step * batch_size < training_iters:
             batch_xs, batch_ys = sess.run(next_op)
-            batch_xs = batch_xs.reshape([batch_size, n_steps, n_inputs])
+            try:
+                batch_xs = batch_xs.reshape([batch_size, n_steps, n_inputs])
+            except Exception as e:
+                print("reshape error.", e)
+                step += 1
+                continue
             sess.run([model.train_op], feed_dict={
                 model.xs: batch_xs,
                 model.ys: batch_ys,

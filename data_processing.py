@@ -6,6 +6,10 @@ import os
 import pandas as pd
 from tensorflow.python.keras.utils import np_utils
 import random
+<<<<<<< HEAD
+=======
+import matplotlib.pyplot as plt
+>>>>>>> 55d279db8ad092d847db449d9963d2010e8f1d6a
 from tqdm import tqdm
 
 f = open('tstoken.txt')
@@ -32,10 +36,19 @@ class data_processing:
         f = open(txtfile)
         for line in f.readlines():
             line = line.strip()
+<<<<<<< HEAD
             code = line #+ ".SH"
+=======
+            if(line[0]=='6'):
+                code = line + ".SH"
+            else:
+                code = line + ".SZ"
+            
+>>>>>>> 55d279db8ad092d847db449d9963d2010e8f1d6a
 
             codelist.append(code)
-        
+
+
         self.code_list = codelist
 
 
@@ -88,6 +101,7 @@ class data_processing:
         dataset_x['low'] = (dataset_x['low']-dataset_x['pre_close'])/dataset_x['pre_close'] * 100
         dataset_x['ma5'] = (dataset_x['ma5']-dataset_x['pre_close'])/dataset_x['pre_close'] * 100
         dataset_x['ma20'] = (dataset_x['ma20']-dataset_x['pre_close'])/dataset_x['pre_close'] * 100
+        dataset_x['ma50'] = (dataset_x['ma50']-dataset_x['pre_close'])/dataset_x['pre_close'] * 100
         # print(dataset_x[['open', 'close' , 'high', 'low',  'pre_close', 'ma5', 'ma20']])
 
         dataset_x = self.mean_norm(dataset_x)
@@ -123,13 +137,39 @@ class data_processing:
         len3 = len(dataset3)
         
 
-        len_min = min([len0, len1, len2, len3])
+        len_max = max([len0, len1, len2, len3])
+        l0 = int(len_max/len0 + 0.5)
+        l1 = int(len_max/len1 + 0.5)
+        l2 = int(len_max/len2 + 0.5)
+        l3 = int(len_max/len3 + 0.5)
+        d0,d1,d2,d3 = [],[],[],[]
+        for i in range(l0):
+            d0 += dataset0
+        for i in range(l1):
+            d1 += dataset1
+        for i in range(l2):
+            d2 += dataset2
+        for i in range(l3):
+            d3 += dataset3
 
-        data_extend = dataset0[0:len_min] + dataset1[0:len_min] + dataset2[0:len_min] + dataset3[0:len_min]
+        print(len0, len1, len2, len3)
+        print(l0, l1, l2, l3)
+        ttt = input()
+
+        data_extend = d0 + d1 + d2 + d3
         random.shuffle(data_extend)
         # print(len0 ,len1, len2, len3, len(data_extend))
 
         return data_extend
+
+
+    def show_data(self, data):
+        x = list(range(data.shape[0]))
+        y = data['close']
+        print(len(x), len(y))
+        plt.scatter(x, y, color='tab:red', s=10, label="Troughs")
+        plt.plot(x, y, color='tab:green')
+        plt.show()
 
 
 
@@ -137,14 +177,14 @@ class data_processing:
         dataset_x = []
         dataset_y = []
 
-        for item in self.code_list:
+        for item in tqdm(self.code_list):
             srcdata = "tmp/" + item + "_" + self.date_start + "_" + self.date_end +".xls"
             if os.path.isfile(srcdata)==False or clean_tmp:
                 self.data_download(clean_tmp)
             
             data = pd.read_excel(srcdata, usecols = [1,2,3,4,5,6,7,8,9,10,11,
-                                                     12,13,14,15])
-            data = data.dropna(axis = 0, subset = ['ma20'])
+                                                     12,13,14,15,16,17])
+            data = data.dropna(axis = 0, subset = ['ma50'])
 
             datay = data['pct_chg'].values.tolist()
             
@@ -163,6 +203,7 @@ class data_processing:
             
 
             data = self.inputdata_clean(data)
+
             if data_col is not None:
                 data = data[data_col]
             datax = data.values.tolist()
@@ -218,7 +259,7 @@ def kmean_analysis(test_data):
 
     from sklearn.cluster import KMeans
     from sklearn.decomposition import PCA, FactorAnalysis
-    import matplotlib.pyplot as plt
+    
     x = np.array(testx)
     x = x.reshape(x.shape[0], -1)
     print(x.shape)
