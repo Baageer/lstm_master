@@ -6,6 +6,7 @@ import os
 import pandas as pd
 from tensorflow.python.keras.utils import np_utils
 import random
+from tqdm import tqdm
 
 f = open('tstoken.txt')
 tstoken = f.readline()
@@ -31,7 +32,7 @@ class data_processing:
         f = open(txtfile)
         for line in f.readlines():
             line = line.strip()
-            code = line + ".SH"
+            code = line #+ ".SH"
 
             codelist.append(code)
         
@@ -39,12 +40,15 @@ class data_processing:
 
 
 
-    def data_download(self, clean_tmp=False):
+    def data_download(self, clean_tmp=False, file_type='csv'):
         if not os.path.exists("tmp"):
             os.makedirs("tmp")
 
-        for item in self.code_list:
-            savepath = "tmp/" + item + "_" + self.date_start + "_" + self.date_end +".xls"
+        for item in tqdm(self.code_list):
+            if file_type == 'csv':
+                savepath = "tmp/" + item + "_" + self.date_start + "_" + self.date_end +".csv"
+            else:
+                savepath = "tmp/" + item + "_" + self.date_start + "_" + self.date_end +".xls"
             if os.path.isfile(savepath):
                 if clean_tmp:
                     os.remove(savepath)
@@ -55,7 +59,10 @@ class data_processing:
             data = ts.pro_bar(ts_code=item,  start_date=self.date_start, end_date=self.date_end, 
                  ma=[5, 20, 50] )
             data = data.reindex(index=data.index[::-1])
-            data.to_excel(savepath)
+            if file_type == 'csv':
+                data.to_csv(savepath)
+            else:
+                data.to_excel(savepath)
 
     def mean_norm(self, df_input):
         # df_input['open'] = (df_input['open']-df_input['open'].mean())/ df_input['open'].std()
